@@ -1,0 +1,10 @@
+﻿pagina_pdf,id,tipo,detalle
+11,20,outlier_revisar,Cebada perlada: zinc_mg=213.0 supera límite referencial 200
+12,34,outlier_revisar,"Cereal desayuno, granola, con trigo y miel: hierro_mg=392.0 supera límite referencial 200"
+22,208,valor_negativo,"Coctel de frutas, en almibar, Snob: proteina_g=-1.0"
+37,482,outlier_revisar,"Pollo, molleja, cruda: zinc_mg=272.0 supera límite referencial 200"
+39,524,outlier_revisar,"Res, sesos, cocidos: colesterol_mg=3100.0 supera límite referencial 3000"
+52,703,outlier_revisar,"Azúcar, con stevia, con omega 3, Sugar Lite: carbohidratos_g=240.0 supera límite referencial 100"
+61,877,energia_no_cuadra,"Bebida, en polvo, jugo de naranja, Naranjayá: energía=222.0, cálculo=224.00, diferencia=2.00"
+61,880,outlier_revisar,"Bebida, en polvo, té, sabor a maracuyá, Suntea: carbohidratos_g=104.0 supera límite referencial 100"
+61,881,energia_no_cuadra,"Chicha,de jora, maiz: energía=28.0, cálculo=24.00, diferencia=4.00"

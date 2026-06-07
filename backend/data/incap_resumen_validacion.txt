@@ -1,0 +1,46 @@
+RESUMEN DE VALIDACIÓN INCAP
+================================
+Total registros extraídos: 1448
+Total issues: 0
+
+Conteo de datos no vacíos por campo:
+- energia_kcal: 1448 / esperado 1448 [OK]
+- carbohidratos_g: 1442 / esperado 1442 [OK]
+- proteina_g: 1447 / esperado 1447 [OK]
+- grasa_g: 1447 / esperado 1447 [OK]
+- fibra_g: 1034 / esperado 1034 [OK]
+- calcio_mg: 1436 / esperado 1436 [OK]
+- hierro_mg: 1433 / esperado 1433 [OK]
+- colesterol_mg: 1122 / esperado 1122 [OK]
+- sodio_mg: 1177 / esperado 1177 [OK]
+- vitamina_c_mg: 1366 / esperado 1366 [OK]
+- zinc_mg: 1131 / esperado 1131 [OK]
+
+Categorías detectadas:
+- 01. PRODUCTOS LÁCTEOS Y SIMILARES: 60
+- 02. HUEVOS: 11
+- 03. CARNE DE AVES: 47
+- 04. CARNE DE CERDO: 27
+- 05. CARNE DE VACUNO: 51
+- 06. CARNE DE ANIMALES DE CAZA: 17
+- 07. EMBUTIDOS Y SIMILARES: 39
+- 08. MARISCOS Y PESCADOS: 59
+- 09. LEGUMINOSAS, GRANOS SECOS Y DERIVADOS: 34
+- 10. NUECES Y SEMILLAS: 33
+- 11. VERDURAS, HORTALIZAS Y OTROS VEGETALES: 181
+- 12. FRUTAS Y JUGOS DE FRUTAS: 161
+- 13. CEREALES, GRANOS SECOS, HARINAS Y PASTAS: 112
+- 14. GALLETAS, PANES, TORTILLAS Y SIMILARES: 75
+- 15. AZÚCARES, MIELES, DULCES Y GOLOSINAS: 33
+- 16. ACEITES Y GRASAS: 27
+- 17. BEBIDAS DIVERSAS: 91
+- 18. POSTRES ELABORADOS: 39
+- 19. COMIDAS INFANTILES: 97
+- 20. ADEREZOS, SALSAS Y SOPAS: 88
+- 21. COMIDAS PREPARADAS: COMERCIALES Y CASERAS: 141
+- 22. CONDIMENTOS: 25
+
+Notas importantes:
+- Los valores vacíos se dejan vacíos en CSV. En SQL deben convertirse a NULL, no a 0.
+- El código 16013, MANTECA VEGETAL, TODO USO, conserva grasa_g vacío porque el PDF lo muestra en blanco.
+- El CSV usa UTF-8 con BOM para abrir correctamente en Excel.
