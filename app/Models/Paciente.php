@@ -26,6 +26,7 @@ class Paciente extends Model
         'altura',
         'ocupacion',
         'tipoConsulta',
+        'perfil_datos',
         'estado',
     ];
 
@@ -41,6 +42,7 @@ class Paciente extends Model
             'edad' => 'integer',
             'peso' => 'decimal:2',
             'altura' => 'decimal:2',
+            'perfil_datos' => 'array',
             'deleted_at' => 'datetime',
         ];
     }

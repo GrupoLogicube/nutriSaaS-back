@@ -39,13 +39,13 @@ class PacienteController extends Controller
         }
 
         if (! $request->hasAny(['page', 'per_page', 'q', 'estado', 'sexo', 'with_inactive'])) {
-            return response()->json($query->get(), 200);
+            return response()->json($query->get()->map(fn (Paciente $paciente) => $this->resource($paciente))->values(), 200);
         }
 
         $pacientes = $query->paginate($validated['per_page'] ?? 15);
 
         return response()->json([
-            'data' => $pacientes->items(),
+            'data' => collect($pacientes->items())->map(fn (Paciente $paciente) => $this->resource($paciente))->values(),
             'meta' => [
                 'current_page' => $pacientes->currentPage(),
                 'from' => $pacientes->firstItem(),
@@ -67,12 +67,12 @@ class PacienteController extends Controller
         $paciente->nombre_completo = $validated['nombre'] . ' ' . $validated['apellido'];
         $paciente->save();
 
-        return response()->json($paciente, 201);
+        return response()->json($this->resource($paciente), 201);
     }
 
     public function show($id)
     {
-        return response()->json(Paciente::findOrFail($id), 200);
+        return response()->json($this->resource(Paciente::findOrFail($id)), 200);
     }
 
     public function update(UpdatePatientRequest $request, $id)
@@ -89,7 +89,7 @@ class PacienteController extends Controller
 
         $paciente->save();
 
-        return response()->json($paciente, 200);
+        return response()->json($this->resource($paciente->refresh()), 200);
     }
 
     public function destroy($id)
@@ -100,5 +100,13 @@ class PacienteController extends Controller
         $paciente->delete();
 
         return response()->json(['message' => 'Paciente dado de baja'], 200);
+    }
+
+    private function resource(Paciente $paciente): array
+    {
+        $data = $paciente->toArray();
+        $profileData = $data['perfil_datos'] ?? [];
+
+        return array_merge(is_array($profileData) ? $profileData : [], $data);
     }
 }

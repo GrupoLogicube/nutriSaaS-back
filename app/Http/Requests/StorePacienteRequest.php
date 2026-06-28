@@ -16,9 +16,19 @@ class StorePacienteRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $nombreCompleto = $this->cleanString($this->input('nombre_completo'));
+        $nombre = $this->cleanString($this->input('nombre'));
+        $apellido = $this->cleanString($this->input('apellido'));
+
+        if ((! is_string($nombre) || $nombre === '') && is_string($nombreCompleto) && $nombreCompleto !== '') {
+            $parts = preg_split('/\s+/', trim($nombreCompleto)) ?: [];
+            $nombre = array_shift($parts) ?: $nombreCompleto;
+            $apellido = trim(implode(' ', $parts));
+        }
+
         $this->merge([
-            'nombre' => $this->cleanString($this->input('nombre')),
-            'apellido' => $this->cleanString($this->input('apellido')),
+            'nombre' => $nombre,
+            'apellido' => is_string($apellido) && $apellido !== '' ? $apellido : 'Sin apellido',
             'email' => $this->cleanNullableString($this->input('email')),
             'telefono' => $this->cleanNullableString($this->input('telefono')),
             'cedula' => $this->cleanNullableString($this->input('cedula')),
@@ -28,6 +38,7 @@ class StorePacienteRequest extends FormRequest
             'edad' => $this->cleanNumeric($this->input('edad')),
             'peso' => $this->cleanNumeric($this->input('peso')),
             'altura' => $this->cleanNumeric($this->input('altura')),
+            'perfil_datos' => $this->input('perfil_datos'),
         ]);
     }
 
@@ -46,6 +57,7 @@ class StorePacienteRequest extends FormRequest
             'altura' => ['nullable', 'numeric', 'min:0', 'max:300'],
             'ocupacion' => ['nullable', 'string', 'max:255'],
             'tipoConsulta' => ['nullable', 'string', 'max:255'],
+            'perfil_datos' => ['nullable', 'array'],
         ];
     }
 }
