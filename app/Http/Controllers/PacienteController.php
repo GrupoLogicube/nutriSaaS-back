@@ -38,6 +38,10 @@ class PacienteController extends Controller
             $query->where('sexo', $validated['sexo']);
         }
 
+        if (! $request->hasAny(['page', 'per_page', 'q', 'estado', 'sexo', 'with_inactive'])) {
+            return response()->json($query->get(), 200);
+        }
+
         $pacientes = $query->paginate($validated['per_page'] ?? 15);
 
         return response()->json([

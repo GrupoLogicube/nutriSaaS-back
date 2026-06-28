@@ -19,8 +19,10 @@ class StorePacienteRequest extends FormRequest
         $this->merge([
             'nombre' => $this->cleanString($this->input('nombre')),
             'apellido' => $this->cleanString($this->input('apellido')),
+            'email' => $this->cleanNullableString($this->input('email')),
+            'telefono' => $this->cleanNullableString($this->input('telefono')),
             'cedula' => $this->cleanNullableString($this->input('cedula')),
-            'sexo' => $this->cleanNullableString($this->input('sexo')),
+            'sexo' => $this->cleanNullableString($this->input('sexo') ?? $this->input('sexo_biologico')),
             'ocupacion' => $this->cleanNullableString($this->input('ocupacion')),
             'tipoConsulta' => $this->cleanNullableString($this->input('tipoConsulta')),
             'edad' => $this->cleanNumeric($this->input('edad')),
@@ -34,6 +36,9 @@ class StorePacienteRequest extends FormRequest
         return [
             'nombre' => ['required', 'string', 'max:255'],
             'apellido' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:50'],
+            'fecha_nacimiento' => ['nullable', 'date'],
             'cedula' => ['nullable', 'string', 'max:50'],
             'sexo' => ['nullable', 'string', 'max:50'],
             'edad' => ['nullable', 'integer', 'min:0', 'max:130'],
