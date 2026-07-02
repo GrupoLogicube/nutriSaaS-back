@@ -28,7 +28,7 @@ class CitaController extends Controller
             'notas' => ['nullable', 'string'],
         ]);
 
-        $cita = Cita::create($this->payload($validated));
+        $cita = Cita::create($this->payload($validated, true));
 
         return response()->json(['data' => $this->resource($cita), 'message' => 'Cita creada'], 201);
     }
@@ -60,15 +60,23 @@ class CitaController extends Controller
         return response()->json(['message' => 'Cita eliminada']);
     }
 
-    private function payload(array $validated): array
+    private function payload(array $validated, bool $withDefaults = false): array
     {
-        return [
-            ...$validated,
-            'fecha_hora' => $validated['fecha_hora_inicio'] ?? $validated['fecha_hora'] ?? null,
-            'tipo' => $validated['tipo'] ?? 'Presencial',
-            'duracion_minutos' => $validated['duracion_minutos'] ?? 60,
-            'estado' => $validated['estado'] ?? 'programada',
-        ];
+        $payload = $validated;
+
+        unset($payload['fecha_hora_inicio']);
+
+        if (array_key_exists('fecha_hora_inicio', $validated)) {
+            $payload['fecha_hora'] = $validated['fecha_hora_inicio'];
+        }
+
+        if ($withDefaults) {
+            $payload['tipo'] = $payload['tipo'] ?? 'Presencial';
+            $payload['duracion_minutos'] = $payload['duracion_minutos'] ?? 60;
+            $payload['estado'] = $payload['estado'] ?? 'programada';
+        }
+
+        return $payload;
     }
 
     private function resource(Cita $cita): array

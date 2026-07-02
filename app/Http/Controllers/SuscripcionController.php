@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Dieta;
 use App\Models\NotaClinica;
 use App\Models\Paciente;
+use App\Models\Suscripcion;
 use Illuminate\Http\Request;
 
 class SuscripcionController extends Controller
@@ -17,12 +18,13 @@ class SuscripcionController extends Controller
 
     public function show(Request $request)
     {
-        return response()->json(['data' => $this->subscription('starter', 'activo')]);
+        return response()->json(['data' => $this->resource($this->currentSubscription())]);
     }
 
     public function usage()
     {
-        $plan = self::PLANS['starter'];
+        $subscription = $this->currentSubscription();
+        $plan = self::PLANS[$subscription->plan] ?? self::PLANS['starter'];
 
         return response()->json([
             'data' => [
@@ -40,23 +42,53 @@ class SuscripcionController extends Controller
             'billing' => ['nullable', 'string', 'in:monthly,annual'],
         ]);
 
+        $subscription = $this->currentSubscription();
+        $subscription->fill([
+            'plan' => $validated['plan'],
+            'billing' => $validated['billing'] ?? $subscription->billing ?? 'monthly',
+            'estado' => 'activo',
+            'proxima_factura' => now()->addMonth()->toDateString(),
+        ])->save();
+
         return response()->json([
-            'data' => $this->subscription($validated['plan'], 'activo', $validated['billing'] ?? 'monthly'),
+            'data' => $this->resource($subscription->refresh()),
             'message' => 'Plan actualizado',
         ]);
     }
 
     public function cancel()
     {
+        $subscription = $this->currentSubscription();
+        $subscription->estado = 'cancelado';
+        $subscription->save();
+
         return response()->json([
-            'data' => $this->subscription('starter', 'cancelado'),
+            'data' => $this->resource($subscription->refresh()),
             'message' => 'Suscripcion cancelada',
         ]);
     }
 
-    private function subscription(string $planId, string $estado, string $billing = 'monthly'): array
+    private function currentSubscription(): Suscripcion
     {
+        return Suscripcion::query()->firstOrCreate(
+            ['id' => 1],
+            [
+                'plan' => 'starter',
+                'billing' => 'monthly',
+                'estado' => 'activo',
+                'proxima_factura' => now()->addMonth()->toDateString(),
+                'historial_pagos' => [],
+                'metodo_pago' => null,
+            ]
+        );
+    }
+
+    private function resource(Suscripcion $subscription): array
+    {
+        $planId = $subscription->plan ?: 'starter';
         $plan = self::PLANS[$planId] ?? self::PLANS['starter'];
+        $nextBilling = optional($subscription->proxima_factura)->toDateString() ?? now()->addMonth()->toDateString();
+        $daysLeft = max(0, now()->startOfDay()->diffInDays($nextBilling, false));
 
         return [
             'plan_id' => $planId,
@@ -65,16 +97,19 @@ class SuscripcionController extends Controller
             'plan_name' => $plan['name'],
             'precio' => $plan['price'],
             'price' => $plan['price'],
-            'estado' => $estado,
-            'status' => $estado,
-            'billing' => $billing,
-            'proxima_factura' => now()->addMonth()->toDateString(),
-            'next_billing' => now()->addMonth()->toDateString(),
-            'dias_restantes' => 30,
-            'days_left' => 30,
-            'progreso_ciclo' => 0,
-            'cycle_progress' => 0,
-            'historial_pagos' => [],
+            'estado' => $subscription->estado,
+            'status' => $subscription->estado,
+            'billing' => $subscription->billing,
+            'proxima_factura' => $nextBilling,
+            'next_billing' => $nextBilling,
+            'dias_restantes' => $daysLeft,
+            'days_left' => $daysLeft,
+            'progreso_ciclo' => min(100, max(0, 100 - (int) round(($daysLeft / 30) * 100))),
+            'cycle_progress' => min(100, max(0, 100 - (int) round(($daysLeft / 30) * 100))),
+            'historial_pagos' => $subscription->historial_pagos ?? [],
+            'billing_history' => $subscription->historial_pagos ?? [],
+            'metodo_pago' => $subscription->metodo_pago,
+            'payment_method' => $subscription->metodo_pago,
         ];
     }
 }

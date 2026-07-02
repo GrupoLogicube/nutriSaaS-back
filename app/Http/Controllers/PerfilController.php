@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -9,7 +10,13 @@ class PerfilController extends Controller
 {
     public function show(Request $request)
     {
-        return response()->json(['data' => $request->user()]);
+        $user = $this->resolveUser($request);
+
+        if (! $user) {
+            return response()->json(['message' => 'Usuario autenticado no encontrado.'], 401);
+        }
+
+        return response()->json(['data' => $user]);
     }
 
     public function update(Request $request)
@@ -24,7 +31,11 @@ class PerfilController extends Controller
             'password_nuevo' => ['nullable', 'string', 'min:8'],
         ]);
 
-        $user = $request->user();
+        $user = $this->resolveUser($request);
+
+        if (! $user) {
+            return response()->json(['message' => 'Usuario autenticado no encontrado.'], 401);
+        }
 
         if (! empty($validated['password_nuevo'])) {
             if (! Hash::check($validated['password_actual'] ?? '', $user->password)) {
@@ -43,5 +54,22 @@ class PerfilController extends Controller
         $user->save();
 
         return response()->json(['data' => $user, 'message' => 'Perfil actualizado']);
+    }
+
+    private function resolveUser(Request $request): ?User
+    {
+        $user = $request->user();
+
+        if ($user instanceof User) {
+            return $user;
+        }
+
+        $masterAdmin = $request->attributes->get('master_admin');
+
+        if ($masterAdmin && isset($masterAdmin->id)) {
+            return User::on('master')->find($masterAdmin->id);
+        }
+
+        return null;
     }
 }
