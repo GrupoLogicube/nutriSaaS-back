@@ -61,4 +61,14 @@ class Paciente extends Model
     {
         return $this->hasMany(PatientMetric::class, 'patient_id')->latest('measured_at');
     }
+
+    public function dietas(): HasMany
+    {
+        return $this->hasMany(Dieta::class, 'paciente_id')->latest();
+    }
+
+    public function rutinas(): HasMany
+    {
+        return $this->hasMany(Rutina::class, 'paciente_id')->latest();
+    }
 }

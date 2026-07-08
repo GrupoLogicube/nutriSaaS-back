@@ -72,7 +72,9 @@ class PacienteController extends Controller
 
     public function show($id)
     {
-        return response()->json($this->resource(Paciente::findOrFail($id)), 200);
+        return response()->json($this->resource(
+            Paciente::with(['dietas', 'rutinas'])->findOrFail($id)
+        ), 200);
     }
 
     public function update(UpdatePatientRequest $request, $id)

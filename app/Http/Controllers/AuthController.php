@@ -57,7 +57,10 @@ class AuthController extends Controller
                 'nombre' => $user->nombre,
                 'apellido' => $user->apellido,
                 'usuario' => $user->usuario,
-                'rol' => $user->rol
+                'email' => $user->email,
+                'telefono' => $user->telefono ?? null,
+                'especialidad' => $user->especialidad ?? null,
+                'rol' => $user->rol,
             ]
         ], 200);
     }
@@ -280,6 +283,8 @@ class AuthController extends Controller
                 'apellido' => $user->apellido,
                 'usuario' => $user->usuario,
                 'email' => $user->email,
+                'telefono' => $user->telefono ?? null,
+                'especialidad' => $user->especialidad ?? null,
                 'rol' => $user->rol,
             ],
         ];
@@ -319,6 +324,6 @@ class AuthController extends Controller
             'tenant_id' => $tenantId,
         ], fn ($value) => $value !== null));
 
-        return rtrim(config('app.frontend_url'), '/') . "/reset-password?{$query}";
+        return rtrim(config('app.frontend_url'), '/') . "/restablecer-contrasena?{$query}";
     }
 }

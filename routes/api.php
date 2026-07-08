@@ -19,33 +19,39 @@ use App\Http\Controllers\RutinaController;
 use App\Http\Controllers\SuscripcionController;
 use App\Http\Middleware\TenantSwitchMiddleware;
 
-Route::post('/login', [AuthController::class , 'login'])->name('login');
-Route::post('/auth/login', [AuthController::class, 'authLogin'])->name('auth.login');
-Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('auth.forgot-password');
-Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('auth.reset-password');
+Route::post('/iniciar-sesion', [AuthController::class , 'login'])->name('iniciar-sesion');
+Route::post('/autenticacion/iniciar-sesion', [AuthController::class, 'authLogin'])->name('autenticacion.iniciar-sesion');
+Route::post('/autenticacion/recuperar-contrasena', [AuthController::class, 'forgotPassword'])->name('autenticacion.recuperar-contrasena');
+Route::post('/autenticacion/restablecer-contrasena', [AuthController::class, 'resetPassword'])->name('autenticacion.restablecer-contrasena');
 
 // Public Empresas
 Route::get('/empresas', [CompanyController::class , 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class , 'logout']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
-    Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    Route::post('/cerrar-sesion', [AuthController::class , 'logout']);
+    Route::get('/autenticacion/yo', [AuthController::class, 'me']);
+    Route::post('/autenticacion/refrescar', [AuthController::class, 'refresh']);
 
     // Admin Empresas
     Route::post('/empresas', [CompanyController::class , 'store']);
 });
 
-Route::group(['prefix' => 'tenant', 'middleware' => [TenantSwitchMiddleware::class]], function () {
-    Route::get('/foods/search', FoodSearchController::class);
+Route::group(['prefix' => 'empresa', 'middleware' => [TenantSwitchMiddleware::class]], function () {
+    Route::get('/alimentos/buscar', FoodSearchController::class);
 
     Route::get('/nutricionistas', [NutricionistaController::class , 'index']);
     Route::post('/nutricionistas', [NutricionistaController::class , 'store']);
     Route::put('/nutricionistas/{id}', [NutricionistaController::class , 'update']);
     Route::delete('/nutricionistas/{id}', [NutricionistaController::class , 'destroy']);
 
-    Route::apiResource('patients', PatientController::class);
-    Route::apiResource('patients.metrics', PatientMetricController::class)
+    Route::apiResource('pacientes-clinicos', PatientController::class)->parameters([
+        'pacientes-clinicos' => 'paciente',
+    ]);
+    Route::apiResource('pacientes-clinicos.metricas', PatientMetricController::class)
+        ->parameters([
+            'pacientes-clinicos' => 'paciente',
+            'metricas' => 'metrica',
+        ])
         ->only(['index', 'store', 'show', 'destroy']);
 
     Route::get('/pacientes', [PacienteController::class , 'index']);
@@ -59,19 +65,23 @@ Route::group(['prefix' => 'tenant', 'middleware' => [TenantSwitchMiddleware::cla
 
     Route::get('/dietas', [DietaController::class, 'index']);
     Route::post('/dietas/generar', [DietaController::class, 'generate']);
+    Route::post('/dietas/enviar', [DietaController::class, 'sendToPatient']);
     Route::post('/dietas', [DietaController::class, 'store']);
     Route::delete('/dietas/{id}', [DietaController::class, 'destroy']);
 
     Route::get('/rutinas', [RutinaController::class, 'index']);
     Route::post('/rutinas/generar', [RutinaController::class, 'generate']);
+    Route::post('/rutinas/enviar', [RutinaController::class, 'sendToPatient']);
     Route::post('/rutinas', [RutinaController::class, 'store']);
+    Route::put('/rutinas/{id}', [RutinaController::class, 'update']);
+    Route::delete('/rutinas/{id}', [RutinaController::class, 'destroy']);
 
     Route::get('/equipo', [EquipoController::class, 'index']);
     Route::post('/equipo/invitar', [EquipoController::class, 'invite']);
     Route::put('/equipo/{id}', [EquipoController::class, 'update']);
     Route::delete('/equipo/{id}', [EquipoController::class, 'destroy']);
 
-    Route::get('/analytics', [AnalyticsController::class, 'summary']);
+    Route::get('/analiticas', [AnalyticsController::class, 'summary']);
     Route::get('/suscripcion', [SuscripcionController::class, 'show']);
     Route::get('/suscripcion/uso', [SuscripcionController::class, 'usage']);
     Route::post('/suscripcion/cambiar', [SuscripcionController::class, 'changePlan']);
@@ -81,6 +91,6 @@ Route::group(['prefix' => 'tenant', 'middleware' => [TenantSwitchMiddleware::cla
 });
 
 // User route for testing
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/usuario', function (Request $request) {
     return $request->user();
 });

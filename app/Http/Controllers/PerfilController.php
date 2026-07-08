@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class PerfilController extends Controller
 {
@@ -45,8 +46,10 @@ class PerfilController extends Controller
             $user->password = Hash::make($validated['password_nuevo']);
         }
 
-        foreach (['nombre', 'apellido', 'email'] as $field) {
-            if (array_key_exists($field, $validated)) {
+        $connection = $user->getConnectionName() ?: config('database.default');
+
+        foreach (['nombre', 'apellido', 'email', 'telefono', 'especialidad'] as $field) {
+            if (array_key_exists($field, $validated) && Schema::connection($connection)->hasColumn('users', $field)) {
                 $user->{$field} = $validated[$field];
             }
         }
